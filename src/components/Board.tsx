@@ -3,36 +3,57 @@ import { useDrop } from 'react-dnd';
 import 'styles/Group.css';
 import Card from './Card';
 import Draggable from './Draggable';
-import { Item as _Item, GroupType, MoveHandler, ItemWithIndex, ItemTypes, TitleMap } from 'utils/Types';
+//import { Item as _Item, GroupType, MoveHandler, ItemWithIndex, ItemTypes, TitleMap } from 'utils/Types';
 import { CustomDragLayer } from 'components/CustomDragLayer';
 
+type List = {
+  id: number;
+  cardId: string;
+  listId: string;
+  contents: {
+    title: string;
+    memo: string;
+  }
+};
+
+type DragItem = List & {
+  type: string;
+}
+
+type MoveHandler = (dragIndex: number, targetIndex: number, groupType: string) => void;
+
+
 type Props = {
-  items: _Item[];
-  groupType: GroupType;
+  items: List[];
+  title: string;
+  groupType: string;
   firstIndex: number;
   onMove: MoveHandler;
 }
 
-const Board: React.FC<Props> = ({ items, groupType, firstIndex, onMove }) => {
+const Board: React.FC<Props> = ({ items, title, groupType, firstIndex, onMove }) => {
+  // console.log(`Board > ${groupType} > firstIndex: `, firstIndex);
+  console.log(firstIndex);
   const [, ref] = useDrop({
-    accept: ItemTypes,
-    hover(dragItem: ItemWithIndex) {
-      const dragIndex = dragItem.index;
-      if (dragItem.group === groupType) return;
+    accept: "item",
+    hover(dragItem: DragItem) {
+      console.log(dragItem);
+      const dragIndex = dragItem.id;
+      if (dragItem.listId === groupType) return;
       const targetIndex = dragIndex < firstIndex ?
         // forward
         firstIndex + items.length - 1 :
         // backward
         firstIndex + items.length;
       onMove(dragIndex, targetIndex, groupType);
-      dragItem.index = targetIndex;
-      dragItem.group = groupType;
+      dragItem.id = targetIndex;
+      dragItem.listId = groupType;
     }
   });
 
   return (
     <div className={['group', groupType].join(' ')}>
-      <h2><span className='count'>{items.length}</span>{TitleMap[groupType]}</h2>
+      <h2><span className='count'>{items.length}</span>{title}</h2>
       <ul className='list' ref={ref}>
         {items.map((item, i) => {
           return (

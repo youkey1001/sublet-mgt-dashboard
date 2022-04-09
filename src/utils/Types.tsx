@@ -21,17 +21,17 @@ export const TitleMap = {
 } as const;
 
 export const items: Item[] = [{
-  id: 1,
-  type: 'item',
-  group: 'mission',
+  id: 1, // card id :SC10cWDz9zB0jCsPMGPr
+  type: 'item', // card
+  group: 'mission', // list id :7UgMqwAJ0ueRfnniYT0S
   contents: {
     title: '出会いからイノベーションを生み出す',
     memo: 'いつの時代も、世界を動かしてきたのは人と人の出会いです。私たちは出会いが持つ可能性を再発見し、未来につなげることでビジネスを変えていきます。イノベーションにつながる新しい出会いを生み出す。出会いの力でビジネスの課題にイノベーションを起こす。そして、名刺からはじまる出会い、そのもののあり方を変えていきます。',
   },
 }, {
-  id: 2,
-  type: 'item',
-  group: 'values',
+  id: 2,  // 3IYwG7t0cxsPt64kkz4x
+  type: 'item', // card
+  group: 'values', // list id : XtMjszb8JHSVa7URnvuC
   contents: {
     title: '仕事に向き合い、仕事を楽しむ',
     memo: '仕事とは決してラクなものではありません。時につらいことや大変なこともあります。だからといって、そこから目を背け、手を抜いていては本物の達成感や自己成長を得ることはできません。仕事における楽しさとはラクをすることではなく、小さな努力を一つずつ積み重ね、目の前の仕事に本気で向き合った先にこそ実感できるものだと考えています。',
