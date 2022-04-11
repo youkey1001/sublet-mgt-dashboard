@@ -1,6 +1,6 @@
-import { type } from 'os';
 import React, { useRef, useEffect } from 'react';
 import { useDrag, useDrop } from 'react-dnd';
+import { db } from '../firebase';
 import { getEmptyImage } from "react-dnd-html5-backend";
 import { Card, MoveHandler, ItemTypes } from 'utils/Types';
 import "styles/Draggable.css";
@@ -46,8 +46,18 @@ const Draggable: React.FC<Props> = ({ card, index, onMove, children }) => {
       isDragging: monitor.isDragging()
     }),
     end: (item, monitor) => {
+      console.log("drag end")
       const didDrop = monitor.didDrop();
-      if (didDrop) console.log("dropped outside");
+      const batch = db.batch();
+      const beforeListId = card.listId;
+      const afterListId = item?.listId;
+      const cardRef = db.collection("lists").doc(beforeListId).collection("cards").doc(item?.id);
+      const listRef = db.collection("lists").doc(afterListId).collection("cards").doc(item?.id);
+      batch.delete(cardRef);
+      batch.set(listRef, item?.contents);
+      if (didDrop && beforeListId !== afterListId) {
+        batch.commit();
+      }
     }
   })
 
