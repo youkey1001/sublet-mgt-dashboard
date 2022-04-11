@@ -2,10 +2,9 @@ import React from 'react';
 import "styles/Card.css";
 
 type Props = {
-  id: number;
   contents: {
     title: string;
-    memo?: string;
+    memo: string;
   },
 }
 
