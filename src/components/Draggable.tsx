@@ -30,8 +30,8 @@ const Draggable: React.FC<Props> = ({ card, index, onMove, children }) => {
         const mousePosition = monitor.getClientOffset();
         if (!mousePosition) return;
         const hoverClientY = mousePosition.y - hoverRect.top;
-        if (dragIndex < hoverIndex && hoverMiddleY < hoverClientY * 0.5) return;
-        if (dragIndex > hoverIndex && hoverMiddleY > hoverClientY * 1.5) return;
+        if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY * 0.5) return;
+        if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY * 1.5) return;
       }
       onMove(dragIndex, hoverIndex, card.listId);
       dragItem.index = hoverIndex;
@@ -53,12 +53,17 @@ const Draggable: React.FC<Props> = ({ card, index, onMove, children }) => {
 
   drag(drop(ref));
 
+  const rect = ref.current?.getBoundingClientRect();
+  const height = rect?.height;
+  const width = rect?.width;
   return (
     <div
       ref={ref}
       className={isDragging ? "isDragging" : "noDragging"}
     >
-      {children}
+      {
+        isDragging ? (<div className="item" style={{ height, width }}></div>) : (children)
+      }
     </div>
   )
 };
