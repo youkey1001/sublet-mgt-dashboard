@@ -20,6 +20,7 @@ const KanbanBoard: React.VFC = () => {
       setLists(
         snapshot.docs.map((doc) => ({
           id: doc.id,
+          order: doc.data().order,
           archive: doc.data().archive,
           title: doc.data().title
         }))
@@ -35,6 +36,7 @@ const KanbanBoard: React.VFC = () => {
       setCards(
         snapshot.docs.map((doc, index) => ({
           id: doc.id,
+          order: doc.data().order,
           index: index,
           listId: doc.ref.parent.parent?.id,
           contents: {
@@ -55,16 +57,20 @@ const KanbanBoard: React.VFC = () => {
         <Box className='kanban'>
           <div className='horizontal'>
             <DndProvider backend={HTML5Backend}>
-              {lists.map((list) => {
-                const groupList = groupedLists[list.id];
-                const firstIndex = index;
-                if (groupList === null) return null;
-                index += groupList.cards.length;
+              {lists
+                .sort((a, b) => {
+                  if (a.order < b.order) return -1;
+                  if (a.order > b.order) return 1;
+                  return 0;
+                })
+                .map((list) => {
+                  const groupList = groupedLists[list.id];
+                  const firstIndex = groupList.cards[0] ? groupList.cards[0].order : 0;
 
-                return (
-                  <List key={list.id} listId={list.id} title={list.title} groupList={groupList} setCards={setCards} firstIndex={firstIndex} />
-                )
-              })}
+                  return (
+                    <List key={list.id} listId={list.id} title={list.title} groupList={groupList} setCards={setCards} firstIndex={firstIndex} />
+                  )
+                })}
             </DndProvider>
           </div>
         </Box>

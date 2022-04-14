@@ -1,11 +1,13 @@
 export type List = {
   id: string;
+  order: number;
   archive: boolean;
   title: string;
 };
 
 export type Card = {
   id: string;
+  order: number;
   index: number;
   listId: string | undefined;
   contents: {

@@ -50,15 +50,21 @@ const List: React.FC<Props> = ({ listId, title, groupList, setCards, firstIndex 
     <div className='group'>
       <h2><span className='count'>{groupList.cards.length}</span>{title}</h2>
       <ul className='list' ref={ref}>
-        {groupList.cards.map((card, i) => {
-          return (
-            <li key={card.id} className='item-wrapper'>
-              <Draggable card={card} index={firstIndex + i} onMove={moveCard}>
-                <Card contents={card.contents} />
-              </Draggable>
-            </li>
-          )
-        })}
+        {groupList.cards
+          .sort((a, b) => {
+            if (a.order < b.order) return -1;
+            if (a.order > b.order) return 1;
+            return 0;
+          })
+          .map((card, i) => {
+            return (
+              <li key={card.id} className='item-wrapper'>
+                <Draggable card={card} index={Number(firstIndex) + i} onMove={moveCard}>
+                  <Card contents={card.contents} />
+                </Draggable>
+              </li>
+            )
+          })}
       </ul>
     </div>
   );
