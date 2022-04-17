@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import styles from 'styles/Auth.module.css';
+import styles from './Auth.module.css';
 import { useDispatch } from 'react-redux';
 import { updateUserProfile } from 'features/userSlice';
 import { auth, provider, storage, db } from '../../firebase';

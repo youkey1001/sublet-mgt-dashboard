@@ -68,7 +68,7 @@ const RouterConfig: React.VFC = () => {
         <Route path="ftp" element={<FtpManager />} />
         <Route path="kanban" element={<KanbanBoard />} />
       </Route>
-      <Route path="/signin" element={<Auth />} />
+      <Route path="signin" element={<Auth />} />
     </Routes >
   )
 }

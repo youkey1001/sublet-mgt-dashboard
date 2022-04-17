@@ -2,8 +2,8 @@ import React from 'react';
 import clsx from 'clsx';
 import { useSelector } from 'react-redux';
 import { selectUser } from 'features/userSlice';
-import LinkAuthGuard from '../route/auth/LinkAuthGuard';
-import LinkMenuItem from '../route/LinkMenuItem';
+import LinkAuthGuard from '../routes/auth/LinkAuthGuard';
+import LinkMenuItem from '../routes/LinkMenuItem';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import {
   Drawer,
