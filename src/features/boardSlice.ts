@@ -1,4 +1,9 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  PayloadAction,
+  createAsyncThunk,
+  current,
+} from "@reduxjs/toolkit";
 import { RootState } from "app/store";
 import { ObjectID } from "bson";
 import { rtdb, auth } from "../firebase";
@@ -12,12 +17,13 @@ const initialState: Board = {
 };
 
 export const updateBoard = (board: Board) => async (dispatch: AppDispatch) => {
+  console.log(board);
   const user = auth.currentUser;
   if (!user) {
     dispatch(updateBoardError());
   } else {
-    dispatch(requestUpdateBoard());
-    rtdb
+    await dispatch(requestUpdateBoard());
+    await rtdb
       .ref("/board/")
       .child(board.boardId)
       .set(board)
@@ -31,8 +37,8 @@ export const updateBoard = (board: Board) => async (dispatch: AppDispatch) => {
 };
 
 export const loadBoard = (uid: string) => async (dispatch: AppDispatch) => {
-  dispatch(requestBoard());
-  rtdb
+  await dispatch(requestBoard());
+  await rtdb
     .ref("/board/" + uid)
     .once("value", (snapshot) => {
       const board = {
@@ -47,7 +53,7 @@ export const loadBoard = (uid: string) => async (dispatch: AppDispatch) => {
 };
 
 export const listenBoard = (uid: string) => async (dispatch: AppDispatch) => {
-  rtdb.ref("/board/" + uid).on("value", (snapshot) => {
+  await rtdb.ref("/board/" + uid).on("value", (snapshot) => {
     if (snapshot.val() !== null) {
       const board = {
         boardId: snapshot.val().boardId,
@@ -57,6 +63,10 @@ export const listenBoard = (uid: string) => async (dispatch: AppDispatch) => {
     }
   });
 };
+
+// export const dragHappened = (payload: DragHappened) => async  (dispatch: AppDispatch) => {
+//   const {} = payload;
+// }
 
 export const boardSlice = createSlice({
   name: "board",
@@ -85,6 +95,25 @@ export const boardSlice = createSlice({
       state.lists = newList;
     },
     addCard: (state, action: PayloadAction<Card>) => {},
+    deleteCard: (state, action: PayloadAction<Ids>) => {
+      const cardID = action.payload.cardID;
+      const listID = action.payload.listID;
+      const newLists = state.lists.map((list) => {
+        if (list.id === listID) {
+          const cardsList = [...list.cards];
+          list.cards.forEach((card, index) => {
+            if (card.id === cardID) {
+              cardsList.splice(index, 1);
+              return;
+            }
+          });
+          return { ...list, cards: cardsList };
+        } else {
+          return list;
+        }
+      });
+      state.lists = newLists;
+    },
     requestBoard: (state, action: PayloadAction) => {},
     receiveBoard: (state, action: PayloadAction<Board>) => {
       state.boardId = action.payload.boardId;
@@ -109,14 +138,17 @@ export const boardSlice = createSlice({
 
       if (type === "list") {
         const list = newState.lists.splice(droppableIndexStart, 1);
+        console.log(list);
         newState.lists.splice(droppableIndexEnd, 0, ...list);
-        return newState;
+        state = newState;
       }
-
+      // console.log("droppableIdStart: ", droppableIdStart);
+      // console.log("droppableIdEnd: ", droppableIdEnd);
       if (droppableIdStart === droppableIdEnd) {
         const list = newState.lists.find(
           (list) => droppableIdStart === list.id
         );
+        // console.log(current(list));
         const card = list?.cards.splice(droppableIndexStart, 1);
         if (list && card) {
           list.cards.splice(droppableIndexEnd, 0, ...card);
@@ -137,12 +169,17 @@ export const boardSlice = createSlice({
           otherList.cards.splice(droppableIndexEnd, 0, ...card);
         }
       }
+      //console.log("lists: ", current(newState.lists));
+      console.log("1");
+      state = newState;
     },
   },
   extraReducers: {},
 });
 
 export const {
+  addCard,
+  deleteCard,
   addList,
   deleteList,
   requestBoard,
@@ -151,6 +188,7 @@ export const {
   receiveUpdatedBoard,
   updateBoardError,
   requestUpdateBoard,
+  dragHappened,
 } = boardSlice.actions;
 
 export const selectBoard = (state: RootState) => state.board;
