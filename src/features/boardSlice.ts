@@ -64,10 +64,6 @@ export const listenBoard = (uid: string) => async (dispatch: AppDispatch) => {
   });
 };
 
-// export const dragHappened = (payload: DragHappened) => async  (dispatch: AppDispatch) => {
-//   const {} = payload;
-// }
-
 export const boardSlice = createSlice({
   name: "board",
   initialState,

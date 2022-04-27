@@ -1,80 +1,83 @@
+/* eslint-disable import/first */
 import React, { useState, useCallback, useEffect } from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import useGroupedLists from 'hooks/useGroupedLists';
-import { db } from '../../firebase';
-import List from 'components/List';
-import { } from 'utils/Types';
-import {
-  Box
-} from '@material-ui/core';
-import 'styles/Kanban.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { listenBoard, loadBoard, dragHappened, updateBoard, selectBoard } from 'features/boardSlice';
+import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
+import styles from './KanbanBoard.module.css';
+import { List } from 'components';
+import { store } from 'app/store';
 
 const KanbanBoard: React.VFC = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [groupedLists, lists, setLists, setCards] = useGroupedLists();
+  const dispatch = useDispatch();
+  const board = useSelector(selectBoard);
 
   useEffect(() => {
-    const unsub = db.collection("lists").onSnapshot((snapshot) => {
-      console.log("lists");
-      setLists(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          order: doc.data().order,
-          archive: doc.data().archive,
-          title: doc.data().title
-        }))
-      );
-      setIsLoading(false);
-    });
-    return () => unsub();
+    const boardId = "-N-k1ZfxQUI682gb-R8u"
+    // dispatch(loadBoard(boardId));
+    dispatch(listenBoard(boardId));
+
   }, []);
 
-  useEffect(() => {
-    const unsub = db.collectionGroup("cards").onSnapshot((snapshot) => {
-      console.log("cards");
-      setCards(
-        snapshot.docs.map((doc, index) => ({
-          id: doc.id,
-          order: doc.data().order,
-          index: index,
-          listId: doc.ref.parent.parent?.id,
-          contents: {
-            title: doc.data().title,
-            memo: doc.data().memo
-          }
-        }))
-      )
-    });
-    return () => unsub();
-  }, []);
+  const onDragEnd = (result: DropResult) => {
+    const { destination, source, draggableId, type } = result;
+    if (!destination) return;
+    // console.log("draggableId: " + source.droppableId);
+    // console.log("droppableIdEnd: " + destination.droppableId);
+    // console.log("droppableIdStart: " + source.index.toString());
+    // console.log("droppableIndexEnd: " + destination.index);
+    // console.log("droppableIndexStart: " + draggableId);
+    // console.log("type: " + type);
 
-  let index = 0;
+    // draggableId: 625a3c11ebe60beec8c8ca22
+    // droppableIdEnd: 625a3c11ebe60beec8c8ca22
+    // droppableIdStart: 1
+    // droppableIndexEnd: 0
+    // droppableIndexStart: 625a3c11ebe60beec8c8ca24
+    // type: DEFAULT
+
+    // draggableId: 0
+    // droppableIdEnd: 0
+    // droppableIdStart: 1
+    // droppableIndexEnd: 0
+    // droppableIndexStart: 625a3c02ebe60beec8c8ca22
+    // type: DEFAULT
+    dispatch(dragHappened({
+      droppableIdStart: source.droppableId,
+      droppableIdEnd: destination.droppableId,
+      droppableIndexStart: source.index,
+      droppableIndexEnd: destination.index,
+      draggableId: draggableId,
+      type
+    }));
+    dispatch(updateBoard(store.getState().board));
+  }
   return (
-    isLoading
-      ? (<Box className='kanban'></Box>)
-      : (
-        <Box className='kanban'>
-          <div className='horizontal'>
-            <DndProvider backend={HTML5Backend}>
-              {lists
-                .sort((a, b) => {
-                  if (a.order < b.order) return -1;
-                  if (a.order > b.order) return 1;
-                  return 0;
-                })
-                .map((list) => {
-                  const groupList = groupedLists[list.id];
-                  const firstIndex = groupList.cards[0] ? groupList.cards[0].order : 0;
-
-                  return (
-                    <List key={list.id} listId={list.id} title={list.title} groupList={groupList} setCards={setCards} firstIndex={firstIndex} />
-                  )
-                })}
-            </DndProvider>
-          </div>
-        </Box>
-      )
+    <DragDropContext onDragEnd={onDragEnd}>
+      <div style={{ position: 'absolute' }} >
+        <Droppable droppableId="all-lists" direction="horizontal" type="list">
+          {(provided) => (
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              style={{ display: 'flex', flexDirection: 'row' }}
+            >
+              {board.lists != null
+                ? board.lists.map((list, index) => (
+                  <List
+                    index={index}
+                    listID={list.id}
+                    title={list.title}
+                    key={list.id}
+                    cards={list.cards}
+                  />
+                ))
+                : null}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </div>
+    </DragDropContext>
   );
 };
 
