@@ -10,6 +10,7 @@ import { store } from 'app/store';
 const KanbanBoard: React.VFC = () => {
   const dispatch = useDispatch();
   const board = useSelector(selectBoard);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     const boardId = "-N-k1ZfxQUI682gb-R8u"
@@ -21,26 +22,6 @@ const KanbanBoard: React.VFC = () => {
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId, type } = result;
     if (!destination) return;
-    // console.log("draggableId: " + source.droppableId);
-    // console.log("droppableIdEnd: " + destination.droppableId);
-    // console.log("droppableIdStart: " + source.index.toString());
-    // console.log("droppableIndexEnd: " + destination.index);
-    // console.log("droppableIndexStart: " + draggableId);
-    // console.log("type: " + type);
-
-    // draggableId: 625a3c11ebe60beec8c8ca22
-    // droppableIdEnd: 625a3c11ebe60beec8c8ca22
-    // droppableIdStart: 1
-    // droppableIndexEnd: 0
-    // droppableIndexStart: 625a3c11ebe60beec8c8ca24
-    // type: DEFAULT
-
-    // draggableId: 0
-    // droppableIdEnd: 0
-    // droppableIdStart: 1
-    // droppableIndexEnd: 0
-    // droppableIndexStart: 625a3c02ebe60beec8c8ca22
-    // type: DEFAULT
     dispatch(dragHappened({
       droppableIdStart: source.droppableId,
       droppableIdEnd: destination.droppableId,
@@ -50,9 +31,20 @@ const KanbanBoard: React.VFC = () => {
       type
     }));
     dispatch(updateBoard(store.getState().board));
+    setIsDragging(false);
   }
+
+  const onDragStart = (event: any) => {
+    setIsDragging(true);
+    console.log("onDragUpdate");
+  }
+
+  const onDragUpdate = () => {
+    console.log("onDragUpdate");
+  }
+
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContext onDragEnd={onDragEnd} onDragStart={onDragStart} onDragUpdate={onDragUpdate} >
       <div style={{ position: 'absolute' }} >
         <Droppable droppableId="all-lists" direction="horizontal" type="list">
           {(provided) => (

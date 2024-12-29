@@ -3,7 +3,7 @@ import {
   Grid
 } from '@material-ui/core';
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import * as Icons from 'components/img';
+import * as Icons from 'assets/img';
 
 const useStyles = makeStyles((theme: Theme) => createStyles({
   gridContainer: {

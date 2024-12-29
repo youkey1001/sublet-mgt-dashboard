@@ -66,6 +66,7 @@ const Card: React.VFC<CardProps> = ({ text, id, index, listID }) => {
             </CardContent>
           </MuiCard>
         </div>
+        {provided.placeholder}
       )}
     </Draggable>
   );

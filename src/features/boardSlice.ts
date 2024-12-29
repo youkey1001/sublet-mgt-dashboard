@@ -17,13 +17,12 @@ const initialState: Board = {
 };
 
 export const updateBoard = (board: Board) => async (dispatch: AppDispatch) => {
-  console.log(board);
   const user = auth.currentUser;
   if (!user) {
     dispatch(updateBoardError());
   } else {
-    await dispatch(requestUpdateBoard());
-    await rtdb
+    dispatch(requestUpdateBoard());
+    rtdb
       .ref("/board/")
       .child(board.boardId)
       .set(board)
@@ -37,8 +36,8 @@ export const updateBoard = (board: Board) => async (dispatch: AppDispatch) => {
 };
 
 export const loadBoard = (uid: string) => async (dispatch: AppDispatch) => {
-  await dispatch(requestBoard());
-  await rtdb
+  dispatch(requestBoard());
+  rtdb
     .ref("/board/" + uid)
     .once("value", (snapshot) => {
       const board = {
@@ -53,7 +52,7 @@ export const loadBoard = (uid: string) => async (dispatch: AppDispatch) => {
 };
 
 export const listenBoard = (uid: string) => async (dispatch: AppDispatch) => {
-  await rtdb.ref("/board/" + uid).on("value", (snapshot) => {
+  rtdb.ref("/board/" + uid).on("value", (snapshot) => {
     if (snapshot.val() !== null) {
       const board = {
         boardId: snapshot.val().boardId,
@@ -134,17 +133,13 @@ export const boardSlice = createSlice({
 
       if (type === "list") {
         const list = newState.lists.splice(droppableIndexStart, 1);
-        console.log(list);
         newState.lists.splice(droppableIndexEnd, 0, ...list);
         state = newState;
       }
-      // console.log("droppableIdStart: ", droppableIdStart);
-      // console.log("droppableIdEnd: ", droppableIdEnd);
       if (droppableIdStart === droppableIdEnd) {
         const list = newState.lists.find(
           (list) => droppableIdStart === list.id
         );
-        // console.log(current(list));
         const card = list?.cards.splice(droppableIndexStart, 1);
         if (list && card) {
           list.cards.splice(droppableIndexEnd, 0, ...card);
@@ -165,8 +160,6 @@ export const boardSlice = createSlice({
           otherList.cards.splice(droppableIndexEnd, 0, ...card);
         }
       }
-      //console.log("lists: ", current(newState.lists));
-      console.log("1");
       state = newState;
     },
   },
